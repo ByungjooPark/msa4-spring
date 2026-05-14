@@ -1,20 +1,68 @@
 package com.msa4spring.controllers;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.msa4spring.requests.PostsFilterRequest;
+import com.msa4spring.requests.UsersPaginationRequest;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
 public class UsersController {
     @GetMapping("/users")
-    public String index() {
-        return "GET Users";
+    public String index(
+            @RequestParam(required = false, defaultValue = "1") String page
+            , @RequestParam String limit
+    ) {
+        // 쿼리 파라미터 획득 방법: @RequestParam 어노테이션을 통해 획득
+        return "GET Users: " + page + ", " + limit;
+    }
+
+    @GetMapping("/users/{id}")
+    public String show(
+            @PathVariable String id
+    ) {
+        return "GET users show: " + id;
     }
 
     @PostMapping("/users")
     public String store() {
         return "POST users";
+    }
+
+    // -------------------------
+    // DTO를 활용하여 파라미터 획득
+    // -------------------------
+    @GetMapping("/users/dto-param")
+    public String dtoParam(
+            UsersPaginationRequest usersPaginationRequest
+    ) {
+        return String.format(
+                "GET dtoParam: %d, %d"
+                , usersPaginationRequest.page()
+                , usersPaginationRequest.limit()
+        );
+    }
+    // --- 세그먼트 파라미터 || Form Data를 DTO로 획득
+    // @ModelAttribute 사용
+    @GetMapping("/posts/{id}/filter/{categoryId}")
+    public String postFilter(
+            @ModelAttribute PostsFilterRequest postsFilterRequest
+    ) {
+        return String.format(
+                "postFilter: %d, %d"
+                ,postsFilterRequest.id()
+                ,postsFilterRequest.categoryId()
+            );
+    }
+
+    // JSON 데이터를 DTO로 획득 : @RequestBody 사용
+    @GetMapping("/posts/json")
+    public String postsJson(
+            @RequestBody PostsFilterRequest postsFilterRequest
+    ) {
+        return String.format(
+                "postsJson: %d, %d"
+                ,postsFilterRequest.id()
+                ,postsFilterRequest.categoryId()
+        );
     }
 }
